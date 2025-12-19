@@ -1,0 +1,208 @@
+Project Enrollment {
+    database_type: "PostgreSQL"
+    Note: '''
+        # Enrollment Database Schema
+        **Registration of all differents profiles related to the SNPC system.**
+        - FODECC
+        - MINADER
+        - Collectivity
+        - EMF / Bank
+        - Cooperative
+        - CTA
+        - CPA
+        - Agrodealer
+        - Producer
+    '''
+}
+
+Table region {
+    id int [pk, increment]
+    name varchar(32) [unique]
+    description text
+}
+Table department {
+    id int [pk, increment]
+    name varchar(32) [unique]
+    description text
+    region_id int [ref: > region.id]
+}
+Table town {
+    id int [pk, increment]
+    name varchar(32) [unique]
+    description text
+    region_id int [ref: > region.id]
+}
+Table arrondissement {
+    id int [pk, increment]
+    name varchar(32) [unique]
+    description text
+    department_id int [ref: > department.id]
+    town_id int [ref: > town.id]
+}
+Table village {
+    id int [pk, increment]
+    name varchar(32)
+    description text
+    arrondissement_id int [ref: > arrondissement.id]
+}
+Table neighborhood {
+    id int [pk, increment]
+    name varchar(32)
+    description text
+    village_id int [ref: > village.id]
+    arrondissement_id int [ref: > arrondissement.id]
+}
+
+Table address {
+    id int [pk, increment]
+    reference_name varchar(128)
+    postal_code varchar(16)
+    neighborhood_id int [ref: > neighborhood.id]
+}
+
+Table farm_station {
+    id int [pk, increment]
+    name varchar(64)
+    description text
+    address_id int [ref: > address.id]
+}
+
+Table user {
+    id int [pk, increment]
+    sso_id varchar(64) [unique, not null]
+    email varchar(256) [unique]
+    id_number varchar(32) [unique]
+    id_card varchar(32) [unique]
+    first_name varchar(32)
+    last_name varchar(32)
+    gender varchar(8)
+    password varchar(256)
+}
+
+Table fodecc {
+    id int [pk, increment]
+    user_id int [ref: > user.id]
+    address_id int [ref: > address.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+
+Table minader {
+    id int [pk, increment]
+    user_id int [ref: > user.id]
+    address_id int [ref: > address.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+
+Table collectivity {
+    id int [pk, increment]
+    user_id int [ref: > user.id]
+    address_id int [ref: > address.id]
+    emf_bank_id int [ref: > emf_bank.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+
+Table emf_bank {
+    id int [pk, increment]
+    name varchar(64)
+    type Enum('EMF', 'Bank')
+    description text
+    affiliated_bank varchar(64)
+    user_id int [ref: > user.id]
+    address_id int [ref: > address.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+Table emf_bank_team {
+    id int [pk, increment]
+    emf_bank_id int [ref: > emf_bank.id]
+    user_id int [ref: > user.id]
+    role "varchar(64)[]"
+    indexes {
+        (emf_bank_id, user_id) [unique]
+    }
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+
+Table cooperative {
+    id int [pk, increment]
+    name varchar(64)
+    farm_station_id int [ref: > farm_station.id]
+    address_id int [ref: > address.id]
+    emf_bank_id int [ref: > emf_bank.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+Table cooperative_producer {
+    id int [pk, increment]
+    cooperative_id int [ref: > cooperative.id]
+    producer_id int [ref: > producer.id]
+    farm_station_id int [ref: > farm_station.id]
+    address_id int [ref: > address.id]
+    indexes {
+        (cooperative_id, producer_id) [unique]
+    }
+}
+
+Table cta {
+    id int [pk, increment]
+    user_id int [ref: > user.id]
+    farm_station_id int [ref: > farm_station.id]
+    address_id int [ref: > address.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+
+Table cpa {
+    id int [pk, increment]
+    user_id int [ref: > user.id]
+    farm_station_id int [ref: > farm_station.id]
+    address_id int [ref: > address.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+
+Table agrodealer {
+    id int [pk, increment]
+    name varchar(64)
+    user_id int [ref: > user.id]
+    farm_station_id int [ref: > farm_station.id]
+    address_id int [ref: > address.id]
+    emf_bank_id int [ref: > emf_bank.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+
+Table producer {
+    id int [pk, increment]
+    user_id int [ref: > user.id]
+    farm_station_id int [ref: > farm_station.id]
+    address_id int [ref: > address.id]
+    emf_bank_id int [ref: > emf_bank.id]
+    finger_print "binary[]"
+    signature "binary[]"
+    photo_profile "varchar(256)[]"
+    status Enum('PENDING', 'VALIDATED', 'REJECTED') [default: 'PENDING']
+}
+
